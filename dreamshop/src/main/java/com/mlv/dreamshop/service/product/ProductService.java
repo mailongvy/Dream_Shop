@@ -2,14 +2,19 @@ package com.mlv.dreamshop.service.product;
 
 import java.util.List;
 import java.util.Optional;
+import com.mlv.dreamshop.Model.Category;
 
 import org.springframework.stereotype.Service;
 
 import com.mlv.dreamshop.DAO.ProductRepository;
 import com.mlv.dreamshop.Model.Product;
 import com.mlv.dreamshop.exceptions.ProductNotFoundException;
+import com.mlv.dreamshop.request.AddProductRequest;
+
+// import lombok.RequiredArgsConstructor;
 
 @Service
+// @RequiredArgsConstructor // những field được đánh dấu là final và @nonnull sẽ được tự động thêm vào constructor
 public class ProductService implements IProductService {
     // define the productrepo
     private ProductRepository productRepository;
@@ -51,39 +56,58 @@ public class ProductService implements IProductService {
     @Override
     public List<Product> getProductsByBrand(String brand) {
         // TODO Auto-generated method stub
-        return null;
+        return productRepository.findByBrand(brand);
     }
 
     @Override
     public List<Product> getProductsByCategory(String category) {
         // TODO Auto-generated method stub
-        return productRepository.findByCategory(category);
+        return productRepository.findByCategoryName(category);
     }
 
     @Override
     public List<Product> getProductsByCategoryAndBrand(String brand, String category) {
         // TODO Auto-generated method stub
-        return null;
+        return productRepository.findByCategoryNameAndBrand(category, brand);
     }
 
     @Override
     public Long countProductsByBrandAndName(String name, String brand) {
         // TODO Auto-generated method stub
-        return null;
+        return productRepository.countByBrandAndName(brand, name);
     }
 
     @Override
     public List<Product> getProductsByBrandAndName(String name, String brand) {
         // TODO Auto-generated method stub
-        return null;
+        return productRepository.findByBrandAndName(brand, name);
     }
 
     @Override
     public List<Product> getProductsByName(String name) {
         // TODO Auto-generated method stub
-        return null;
+        return productRepository.findByName(name);
     }
 
+    @Override
+    public Product addProuct(AddProductRequest request) {
+        // TODO Auto-generated method stub
+
+        return null;
+        
+    }
+
+    private Product createProduct(AddProductRequest request, Category category) {
+        return new Product(
+            request.getName(), 
+            request.getBrand(), 
+            request.getPrice(),
+            request.getInventory(),
+            request.getDescription(), 
+            category);
+    }
+
+    
     
 
     

@@ -3,8 +3,12 @@ package com.mlv.dreamshop.service.product;
 import java.util.List;
 
 import com.mlv.dreamshop.Model.Product;
+import com.mlv.dreamshop.request.AddProductRequest;
 
 public interface IProductService {
+    // add Product
+    Product addProuct(AddProductRequest request);
+
     // add product and update
     Product save(Product product);
 
