@@ -24,12 +24,13 @@ public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
     private String fileName;
     private String fileType;
+    private String downloadUrl;
 
     @Lob
     private Blob image;
-    private String downloadUrl;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "product_id", referencedColumnName = "id")

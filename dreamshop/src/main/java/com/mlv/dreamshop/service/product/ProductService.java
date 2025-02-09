@@ -6,24 +6,28 @@ import com.mlv.dreamshop.Model.Category;
 
 import org.springframework.stereotype.Service;
 
+import com.mlv.dreamshop.DAO.CategoryRepository;
 import com.mlv.dreamshop.DAO.ProductRepository;
 import com.mlv.dreamshop.Model.Product;
 import com.mlv.dreamshop.exceptions.ProductNotFoundException;
 import com.mlv.dreamshop.request.AddProductRequest;
+import com.mlv.dreamshop.request.UpdateProductRequest;
+
+import lombok.RequiredArgsConstructor;
 
 // import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 // @RequiredArgsConstructor // những field được đánh dấu là final và @nonnull sẽ được tự động thêm vào constructor
 public class ProductService implements IProductService {
     // define the productrepo
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     
     
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
+    
 
     @Override
     public void deleteProductById(Long id) {
@@ -48,10 +52,36 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product save(Product product) {
+    public Product updateProduct(UpdateProductRequest request, Long productId) {
         // TODO Auto-generated method stub
-        return productRepository.save(product);
+        // private Long id;
+        // private String name;
+        // private String brand;
+        // private BigDecimal price;
+        // private int inventory;
+        // private String description;
+        // private Category category;
+
+       return productRepository.findById(productId)
+                .map(existingProduct -> updateExistingProduct(request, existingProduct))
+                .map(productRepository::save)
+                .orElseThrow(() -> new ProductNotFoundException("Product Not found"));
     }
+
+    public Product updateExistingProduct(UpdateProductRequest request, Product existingProduct) {
+        existingProduct.setName(request.getName());
+        existingProduct.setBrand(request.getBrand());
+        existingProduct.setPrice(request.getPrice());
+        existingProduct.setInventory(request.getInventory());
+        existingProduct.setDescription(request.getDescription());
+
+        Category category = categoryRepository.findByName(request.getCategory().getName());
+        existingProduct.setCategory(category);
+        return null;
+    }
+
+
+    
 
     @Override
     public List<Product> getProductsByBrand(String brand) {
@@ -92,8 +122,18 @@ public class ProductService implements IProductService {
     @Override
     public Product addProuct(AddProductRequest request) {
         // TODO Auto-generated method stub
-
-        return null;
+        // before adding the productk, check the category
+        // check if the category found in the Db
+        // if yes set it  as the new product
+        // if no  save it as a new category
+        Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
+                            .orElseGet(() -> {
+                                Category newCategory = new Category(request.getCategory().getName());
+                                return categoryRepository.save(newCategory);
+                            });
+        
+        request.setCategory(category);
+        return productRepository.save(createProduct(request, category));
         
     }
 
@@ -104,7 +144,8 @@ public class ProductService implements IProductService {
             request.getPrice(),
             request.getInventory(),
             request.getDescription(), 
-            category);
+            category
+        );
     }
 
     
