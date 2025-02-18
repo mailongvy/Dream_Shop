@@ -2,6 +2,8 @@ package com.mlv.dreamshop.Model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,11 +27,14 @@ public class Category {
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "category")
+    @JsonIgnore // khong serialize để tránh vòng lặp (không cần hiẻn thị product trong category chỉ cần hiển thị id)
     private List<Product> products;
 
     public Category(String name) {
         this.name = name;
     }
+
+
 
     
 }
