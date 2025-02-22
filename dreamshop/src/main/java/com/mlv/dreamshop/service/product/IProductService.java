@@ -3,6 +3,7 @@ package com.mlv.dreamshop.service.product;
 import java.util.List;
 
 import com.mlv.dreamshop.Model.Product;
+import com.mlv.dreamshop.dto.ProductDTO;
 import com.mlv.dreamshop.request.AddProductRequest;
 import com.mlv.dreamshop.request.UpdateProductRequest;
 
@@ -39,4 +40,10 @@ public interface IProductService {
 
     // count products by name and brand
     Long countProductsByBrandAndName(String name, String brand);
+
+    // convert to list of dto
+    List<ProductDTO> getConvertedProducts(List<Product> products);
+
+    // convert to dto for product
+    ProductDTO convertToDto(Product product);
 }

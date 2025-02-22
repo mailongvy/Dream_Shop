@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mlv.dreamshop.Model.Product;
 import com.mlv.dreamshop.Response.ApiResponse;
+import com.mlv.dreamshop.dto.ProductDTO;
 import com.mlv.dreamshop.exceptions.ProductNotFoundException;
 import com.mlv.dreamshop.request.AddProductRequest;
 import com.mlv.dreamshop.request.UpdateProductRequest;
 import com.mlv.dreamshop.service.product.ProductService;
 
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,7 +36,8 @@ public class ProductController {
     @GetMapping("/product/all")
     public ResponseEntity<ApiResponse> getAllProducts() {
         List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(new ApiResponse("Found", products));
+        List<ProductDTO> convertedProducts = productService.getConvertedProducts(products);
+        return ResponseEntity.ok(new ApiResponse("Found", convertedProducts));
     }
 
     // get product by the id
@@ -44,7 +45,8 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getProductById(@PathVariable Long productId) {
         try {
             Product product = productService.findById(productId);
-            return ResponseEntity.ok(new ApiResponse("Found", product));
+            ProductDTO convertedProduct = productService.convertToDto(product);
+            return ResponseEntity.ok(new ApiResponse("Found", convertedProduct));
         } catch (ProductNotFoundException e) {
             // TODO Auto-generated catch block
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -98,11 +100,12 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getProductByBrandAndName(@RequestParam String brand, @RequestParam String name) {
         try {
             List<Product> products = productService.getProductsByBrandAndName(name, brand);
+            List<ProductDTO> convertedProducts = productService.getConvertedProducts(products);
             if (products == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body(new ApiResponse("No product Found", null));
             }
-            return ResponseEntity.ok(new ApiResponse("Found", products));
+            return ResponseEntity.ok(new ApiResponse("Found", convertedProducts));
         } catch (Exception e) {
             // TODO Auto-generated catch block
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -115,11 +118,12 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getProductByBrandAndCategory(@PathVariable String brand, @PathVariable String category) {
         try {
             List<Product> products = productService.getProductsByCategoryAndBrand(brand, category);
+            List<ProductDTO> convertedProducts = productService.getConvertedProducts(products);
             if (products == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body(new ApiResponse("No product found", null));
             }
-            return ResponseEntity.ok(new ApiResponse("Found", products));
+            return ResponseEntity.ok(new ApiResponse("Found", convertedProducts));
         } catch (Exception e) {
             // TODO Auto-generated catch block
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -132,11 +136,12 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getProductByName(@PathVariable String name) {
         try {
             List<Product> products = productService.getProductsByName(name);
+            List<ProductDTO> convertedProducts = productService.getConvertedProducts(products);
             if (products == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body(new ApiResponse("No product found", null));
             }
-            return ResponseEntity.ok(new ApiResponse("Found", products));
+            return ResponseEntity.ok(new ApiResponse("Found", convertedProducts));
         } catch (Exception e) {
             // TODO Auto-generated catch block
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -149,11 +154,12 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getProductByBrand(@RequestParam String brand) {
         try {
             List<Product> products = productService.getProductsByBrand(brand);
+            List<ProductDTO> convertedProducts = productService.getConvertedProducts(products);
             if (products == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body(new ApiResponse("No product found", null));
             }
-            return ResponseEntity.ok(new ApiResponse("Found", products));
+            return ResponseEntity.ok(new ApiResponse("Found", convertedProducts));
         } catch (Exception e) {
             // TODO Auto-generated catch block
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -168,11 +174,12 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getProductByCategory(@PathVariable String category) {
         try {
             List<Product> products = productService.getProductsByCategory(category);
+            List<ProductDTO> convertedProducts = productService.getConvertedProducts(products);
             if (products == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body(new ApiResponse("No product found", null));
             }
-            return ResponseEntity.ok(new ApiResponse("Found", products));
+            return ResponseEntity.ok(new ApiResponse("Found", convertedProducts));
         } catch (Exception e) {
             // TODO Auto-generated catch block
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -184,7 +191,7 @@ public class ProductController {
     @GetMapping("/product/get/by-brand-and-name")
     public ResponseEntity<ApiResponse> countProductByBrandAndName(@RequestParam String brand, @RequestParam String name) {
         try {
-            var productCount = productService.countProductsByBrandAndName(name, brand);
+            Long productCount = productService.countProductsByBrandAndName(name, brand);
             return ResponseEntity.ok(new ApiResponse("Product Count", productCount));
         } catch (Exception e) {
             // TODO Auto-generated catch block

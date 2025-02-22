@@ -3,12 +3,17 @@ package com.mlv.dreamshop.service.product;
 import java.util.List;
 import java.util.Optional;
 import com.mlv.dreamshop.Model.Category;
+import com.mlv.dreamshop.Model.Image;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.mlv.dreamshop.DAO.CategoryRepository;
+import com.mlv.dreamshop.DAO.ImageRepository;
 import com.mlv.dreamshop.DAO.ProductRepository;
 import com.mlv.dreamshop.Model.Product;
+import com.mlv.dreamshop.dto.ImageDTO;
+import com.mlv.dreamshop.dto.ProductDTO;
 import com.mlv.dreamshop.exceptions.ProductNotFoundException;
 import com.mlv.dreamshop.request.AddProductRequest;
 import com.mlv.dreamshop.request.UpdateProductRequest;
@@ -24,6 +29,8 @@ public class ProductService implements IProductService {
     // define the productrepo
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ModelMapper modelMapper;
+    private final ImageRepository imageRepository;
 
     
     
@@ -148,7 +155,21 @@ public class ProductService implements IProductService {
         );
     }
 
+    @Override
+    public List<ProductDTO> getConvertedProducts(List<Product> products) {
+        return products.stream().map(this::convertToDto).toList();
+    }
+
     
+    // convert to dto
+    @Override
+    public ProductDTO convertToDto(Product product) {
+        ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+        List<Image> images = imageRepository.findByProductId(product.getId());
+        List<ImageDTO> imageDTOs = images.stream().map(image -> modelMapper.map(image, ImageDTO.class)).toList();
+        productDTO.setImages(imageDTOs);
+        return productDTO;
+    }
     
 
     
