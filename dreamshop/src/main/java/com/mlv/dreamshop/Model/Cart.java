@@ -44,7 +44,7 @@ public class Cart {
     public void removeItem(CartItem item) {
         this.cartItems.remove(item);
         item.setCart(null);
-
+        updateTotalAmount();
     }
 
     private void updateTotalAmount() {

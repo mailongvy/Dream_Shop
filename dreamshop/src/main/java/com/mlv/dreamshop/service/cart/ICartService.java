@@ -1,5 +1,7 @@
 package com.mlv.dreamshop.service.cart;
 
+import java.math.BigDecimal;
+
 import com.mlv.dreamshop.Model.Cart;
 
 public interface ICartService {
@@ -10,4 +12,5 @@ public interface ICartService {
     public void clearCart(Long id);
 
     // get total price for the cart
+    BigDecimal getTotalPrice(Long id);
 }
