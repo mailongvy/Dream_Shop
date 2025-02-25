@@ -32,21 +32,21 @@ public class CartItem {
 
     private BigDecimal unitPrice;
 
-    private BigDecimal toatalPrice;
+    private BigDecimal totalPrice;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "cart_id", referencedColumnName = "id")
     private Cart cart;
 
-    public CartItem(Product product, int quantity, BigDecimal unitPrice, BigDecimal toatalPrice) {
+    public CartItem(Product product, int quantity, BigDecimal unitPrice, BigDecimal totalPrice) {
         this.product = product;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
-        this.toatalPrice = toatalPrice;
+        this.totalPrice = totalPrice;
     }
 
     public void setTotalPrice() {
-        this.toatalPrice = this.unitPrice.multiply(new BigDecimal(this.quantity));
+        this.totalPrice = this.unitPrice.multiply(new BigDecimal(this.quantity));
     }
     
 }
