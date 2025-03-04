@@ -42,7 +42,7 @@ public class CartController {
             return ResponseEntity.ok(new ApiResponse("Clear Cart Successfully", null));
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body(new ApiResponse(e.getMessage(), null));
         }
     }
@@ -55,7 +55,7 @@ public class CartController {
             return ResponseEntity.ok(new ApiResponse("Get Total Amount Success", totalAmount));
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body(new ApiResponse(e.getMessage(), null));
         }
     }
