@@ -1,7 +1,9 @@
 package com.mlv.dreamshop.Model;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
+
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -19,6 +21,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +31,7 @@ public class Cart {
 
     // xoá cart sẽ xoá lun cartitem
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CartItem> cartItems;
+    private Set<CartItem> cartItems = new HashSet<>();
 
     public Cart(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;

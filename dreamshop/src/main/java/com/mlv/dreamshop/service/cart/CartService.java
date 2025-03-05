@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mlv.dreamshop.DAO.CartItemRepository;
 import com.mlv.dreamshop.DAO.CartRepository;
@@ -19,7 +20,7 @@ public class CartService implements ICartService {
     private final CartItemRepository cartItemRepository;
     private final AtomicLong cartIdGenerator = new AtomicLong(0);
     
-
+    @Transactional
     @Override
     public void clearCart(Long id) {
         // TODO Auto-generated method stub

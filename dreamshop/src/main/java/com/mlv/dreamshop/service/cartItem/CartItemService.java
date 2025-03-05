@@ -63,8 +63,8 @@ public class CartItemService implements ICartItemService {
 
         cart.addItem(cartItem);
 
-
         cartItemRepository.save(cartItem);
+        
         cartRepository.save(cart);
 
 

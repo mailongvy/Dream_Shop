@@ -46,7 +46,7 @@ public class CartItem {
     }
 
     public void setTotalPrice() {
-        this.totalPrice = this.unitPrice.multiply(new BigDecimal(this.quantity));
+        this.totalPrice = product.getPrice().multiply(new BigDecimal(this.quantity));
     }
     
 }
