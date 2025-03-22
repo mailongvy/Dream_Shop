@@ -1,9 +1,7 @@
 package com.mlv.dreamshop.Model;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.Set;
-
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -19,47 +17,20 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-
+@NoArgsConstructor
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
+    // giá trị default cho biến tổng là 0
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
-    // xoá cart sẽ xoá lun cartitem
+    // cartitem phải là phần tử khác nhau nên phải dùng set
+    // 1 cart sẽ có nhiều cartitems
+    // nếu xoá cart sẽ xoá lun các cart item có trong cart => chọn all
+    // tự động xoá các entity con ko có mqh vs các entity cha
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CartItem> cartItems = new HashSet<>();
-
-    public Cart(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public void addItem(CartItem cartItem) {
-        this.cartItems.add(cartItem);
-        cartItem.setCart(this);
-        updateTotalAmount();
-
-    }
-
-    public void removeItem(CartItem item) {
-        this.cartItems.remove(item);
-        item.setCart(null);
-        updateTotalAmount();
-    }
-
-    private void updateTotalAmount() {
-        this.totalAmount = cartItems.stream().map(item -> {
-            BigDecimal unitPrice = item.getUnitPrice();
-            if (unitPrice == null) {
-                return  BigDecimal.ZERO;
-            }
-            return unitPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
-        }).reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    
-    
+    private Set<CartItem> cartItems;
 }
