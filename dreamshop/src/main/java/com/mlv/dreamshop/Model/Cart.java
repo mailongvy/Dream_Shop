@@ -32,5 +32,27 @@ public class Cart {
     // nếu xoá cart sẽ xoá lun các cart item có trong cart => chọn all
     // tự động xoá các entity con ko có mqh vs các entity cha
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CartItem> cartItems;
+    private Set<CartItem> items;
+
+    public void addItem(CartItem item) {
+        this.items.add(item);
+        item.setCart(this);
+
+    }
+
+    public void removeItem(CartItem item) {
+        this.items.remove(item);
+        item.setCart(null);
+
+    }
+
+    public void updateTotalAmount() {
+        this.totalAmount = items.stream().map(item -> {
+            BigDecimal unitPrice = item.getUnitPrice();
+            if (unitPrice == null) {
+                return BigDecimal.ZERO;
+            }
+            return unitPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
+        }).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }
