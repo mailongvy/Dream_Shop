@@ -3,7 +3,6 @@ package com.mlv.dreamshop.Controller;
 import java.math.BigDecimal;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,17 +40,29 @@ public class CartController {
     // clear cart
     @DeleteMapping("/{cartId}/clear")
     public ResponseEntity<ApiResponse> clearCart(@PathVariable Long cartId) {
-        cartService.clearCart(cartId);
-        return ResponseEntity.ok(new ApiResponse("Clear Cart Success", null));
+        try {
+            cartService.clearCart(cartId);
+            return ResponseEntity.ok(new ApiResponse("Clear Cart Success", null));
+        } catch (ResourceNotFound e) {
+            // TODO Auto-generated catch block
+            return ResponseEntity.ok(new ApiResponse(e.getMessage(), null));
+        }
         
     }
 
     // get total amount for the cart
     @GetMapping("{cartId}/cart/total-price")
     public ResponseEntity<ApiResponse> getTotalAmount(@PathVariable Long cartId) {
-        BigDecimal totalPrice = cartService.getTotalPrice(cartId);
-        return ResponseEntity.ok(new ApiResponse("Total price", totalPrice));
+        try {
+            BigDecimal totalPrice = cartService.getTotalPrice(cartId);
+            return ResponseEntity.ok(new ApiResponse("Total price", totalPrice));
+        } catch (ResourceNotFound e) {
+            // TODO Auto-generated catch block
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(new ApiResponse(e.getMessage(), null));
+        }
     }
 
+    
 
 }
