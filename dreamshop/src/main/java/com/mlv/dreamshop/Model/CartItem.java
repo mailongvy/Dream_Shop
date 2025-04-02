@@ -2,6 +2,8 @@ package com.mlv.dreamshop.Model;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,6 +37,7 @@ public class CartItem {
     private Product product;
     
     // khi xoá cartitem ko thể xoá cart => ko có cascade.delete
+    @JsonIgnore
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "cart_id")
     private Cart cart;
