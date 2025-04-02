@@ -3,6 +3,7 @@ package com.mlv.dreamshop.service.Cart;
 import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mlv.dreamshop.DAO.CartItemRepository;
 import com.mlv.dreamshop.DAO.CartRepository;
@@ -25,6 +26,7 @@ public class CartItemService implements ICartItemService {
 
 
     @Override
+    @Transactional
     public void addItemToCart(Long cartId, Long productId, int quantity) {
         // TODO Auto-generated method stub
         // 1. get the cart
@@ -54,6 +56,7 @@ public class CartItemService implements ICartItemService {
 
         cartItem.setTotalPrice();
         cart.addItem(cartItem);
+        
         cartItemRepository.save(cartItem);
         cartRepository.save(cart);
     }

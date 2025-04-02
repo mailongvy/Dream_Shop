@@ -1,9 +1,11 @@
 package com.mlv.dreamshop.service.Cart;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mlv.dreamshop.DAO.CartItemRepository;
 import com.mlv.dreamshop.DAO.CartRepository;
@@ -17,9 +19,9 @@ import lombok.RequiredArgsConstructor;
 public class CartService implements ICartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final AtomicLong cartIdGenerator = new AtomicLong(0);
 
     @Override
+    @Transactional
     public void clearCart(Long id) {
         // TODO Auto-generated method stub
         Cart cart = getCart(id);
@@ -50,14 +52,13 @@ public class CartService implements ICartService {
     }
 
     @Override
+    @Transactional
     public Long initializeNewCart() {
-        Cart newCart = new Cart();
-
-        Long newCartId = cartIdGenerator.incrementAndGet();
-
-        newCart.setId(newCartId);
-
-        return cartRepository.save(newCart).getId();
+        Cart cart = new Cart();
+        cart.setTotalAmount(BigDecimal.ZERO);
+        cart.setItems(new HashSet<>());
+        cartRepository.save(cart);
+        return cart.getId();
     }
     
 }
