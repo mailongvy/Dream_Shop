@@ -1,9 +1,15 @@
 package com.mlv.dreamshop.service.order;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import com.mlv.dreamshop.Model.Order;
+import com.mlv.dreamshop.Model.OrderItem;
 
 public interface IOrderService {
-    Order placeOrder(Order userId);
+    Order placeOrder(Long userId);
 
-    Order getOrder();
+    Order getOrder(Long orderId);
+
+    BigDecimal calculateTotalAmount(List<OrderItem> orderItemList);
 }
