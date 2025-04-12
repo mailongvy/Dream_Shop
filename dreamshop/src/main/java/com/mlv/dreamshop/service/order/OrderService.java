@@ -18,6 +18,7 @@ import com.mlv.dreamshop.enums.OrderStatus;
 import com.mlv.dreamshop.exceptions.ResourceNotFound;
 import com.mlv.dreamshop.service.Cart.ICartService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,6 +36,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    @Transactional
     public Order placeOrder(Long userId) {
         // TODO Auto-generated method stub
         Cart cart = cartService.getCartsByUserId(userId);
