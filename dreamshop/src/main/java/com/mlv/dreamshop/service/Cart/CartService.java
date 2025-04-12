@@ -65,7 +65,7 @@ public class CartService implements ICartService {
     @Override
     public Cart getCartsByUserId(Long userId) {
         // TODO Auto-generated method stub
-        return null;
+        return cartRepository.findByUserId(userId);
     }
 
     

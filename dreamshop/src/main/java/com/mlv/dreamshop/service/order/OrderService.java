@@ -84,5 +84,10 @@ public class OrderService implements IOrderService {
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    @Override
+    public List<Order> getUserOrder(Long userId) {
+        return orderRepository.findByUserId(userId);
+    }
     
+
 }
