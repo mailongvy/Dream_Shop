@@ -2,6 +2,8 @@ package com.mlv.dreamshop.Model;
 
 import java.util.List;
 
+import org.hibernate.annotations.NaturalId;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,7 @@ public class User {
     private Long id;
     private String firstName;
     private String lastName;
+    @NaturalId
     private String email;
     private String password;
 
