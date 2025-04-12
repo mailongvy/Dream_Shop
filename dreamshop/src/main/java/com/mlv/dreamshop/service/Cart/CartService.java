@@ -31,6 +31,7 @@ public class CartService implements ICartService {
         
     }
 
+    
     @Override
     public Cart getCart(Long id) {
         // TODO Auto-generated method stub
@@ -59,5 +60,14 @@ public class CartService implements ICartService {
         cartRepository.save(cart);
         return cart.getId();
     }
+
+
+    @Override
+    public Cart getCartsByUserId(Long userId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    
     
 }
