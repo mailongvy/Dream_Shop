@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.jaxb.SpringDataJaxb.OrderDto;
 import org.springframework.stereotype.Service;
 
 import com.mlv.dreamshop.DAO.OrderRepository;
@@ -14,6 +16,7 @@ import com.mlv.dreamshop.Model.Cart;
 import com.mlv.dreamshop.Model.Order;
 import com.mlv.dreamshop.Model.OrderItem;
 import com.mlv.dreamshop.Model.Product;
+import com.mlv.dreamshop.dto.OrderDTO;
 import com.mlv.dreamshop.enums.OrderStatus;
 import com.mlv.dreamshop.exceptions.ResourceNotFound;
 import com.mlv.dreamshop.service.Cart.ICartService;
@@ -27,12 +30,14 @@ public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ICartService cartService;
+    private final ModelMapper modelMapper;
 
     @Override
-    public Order getOrder(Long orderId) {
+    public OrderDTO getOrder(Long orderId) {
         // TODO Auto-generated method stub
         return orderRepository.findById(orderId)
-                              .orElseThrow(() -> new ResourceNotFound("Order Not Found"));
+                              .map(this::convertToDto)
+                              .orElseThrow(() -> new ResourceNotFound("Order not found"));
     }
 
     @Override
@@ -89,6 +94,11 @@ public class OrderService implements IOrderService {
     @Override
     public List<Order> getUserOrder(Long userId) {
         return orderRepository.findByUserId(userId);
+    }
+
+    
+    public OrderDTO convertToDto(Order order) {
+        return modelMapper.map(order, OrderDTO.class);
     }
     
 

@@ -5,15 +5,17 @@ import java.util.List;
 
 import com.mlv.dreamshop.Model.Order;
 import com.mlv.dreamshop.Model.OrderItem;
+import com.mlv.dreamshop.dto.OrderDTO;
 
 public interface IOrderService {
     Order placeOrder(Long userId);
 
-    Order getOrder(Long orderId);
+    OrderDTO getOrder(Long orderId);
 
     BigDecimal calculateTotalAmount(List<OrderItem> orderItemList);
 
     List<Order> getUserOrder(Long userId);
+
 
     
 }
