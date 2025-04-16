@@ -53,7 +53,7 @@ public class OrderController {
     @GetMapping("/orderByUserId/{userId}")
     public ResponseEntity<ApiResponse> getUsersOrder(@PathVariable Long userId) {
         try {
-            List<Order> order = orderService.getUserOrder(userId);
+            List<OrderDTO> order = orderService.getUserOrder(userId);
             return ResponseEntity.ok(new ApiResponse("Order found", order));
         } catch (ResourceNotFound e) {
             // TODO Auto-generated catch block
@@ -62,6 +62,7 @@ public class OrderController {
         }
     }
 
+    
 
 
 
