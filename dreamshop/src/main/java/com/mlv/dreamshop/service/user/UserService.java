@@ -20,7 +20,7 @@ public class UserService implements IUserService {
 
     @Override
     public User createUser(CreateUserRequest request) {
-        // TODO Auto-generated method stub
+        // TODO Auto-generated method stub   
         return Optional.of(request)
                        .filter((user) -> !userRepository.existByEmail(request.getEmail()))
                        .map(req -> {
