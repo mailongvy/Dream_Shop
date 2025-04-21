@@ -18,11 +18,13 @@ import lombok.RequiredArgsConstructor;
 public class UserService implements IUserService {
     private final UserRepository userRepository;
 
+    
+
     @Override
     public User createUser(CreateUserRequest request) {
         // TODO Auto-generated method stub   
         return Optional.of(request)
-                       .filter((user) -> !userRepository.existByEmail(request.getEmail()))
+                       .filter((user) -> !userRepository.existsByEmail(request.getEmail()))
                        .map(req -> {
                             User user = new User(); 
                             user.setEmail(req.getEmail());

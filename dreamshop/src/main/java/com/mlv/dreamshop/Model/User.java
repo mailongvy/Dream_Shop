@@ -5,6 +5,7 @@ import java.util.List;
 import org.hibernate.annotations.NaturalId;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,8 +28,11 @@ public class User {
     private Long id;
     private String firstName;
     private String lastName;
+
     @NaturalId
+    @Column(name = "email")
     private String email;
+
     private String password;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
