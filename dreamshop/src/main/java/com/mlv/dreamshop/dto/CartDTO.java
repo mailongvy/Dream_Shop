@@ -1,6 +1,5 @@
 package com.mlv.dreamshop.dto;
 
-import com.mlv.dreamshop.Model.CartItem;
 import lombok.Data;
 
 import java.math.BigDecimal;

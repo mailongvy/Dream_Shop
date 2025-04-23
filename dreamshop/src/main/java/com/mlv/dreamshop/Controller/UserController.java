@@ -1,5 +1,6 @@
 package com.mlv.dreamshop.Controller;
 
+import com.mlv.dreamshop.dto.UserDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +32,8 @@ public class UserController {
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId) {
         try {
             User user = userService.getUserById(userId);
-            return ResponseEntity.ok(new ApiResponse("User found", user));
+            UserDTO userDTO = userService.convertUserToDTO(user);
+            return ResponseEntity.ok(new ApiResponse("User found", userDTO));
         } catch (ResourceNotFound e) {
             // TODO Auto-generated catch block
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -43,7 +45,8 @@ public class UserController {
     public ResponseEntity<ApiResponse> createUser(@RequestBody CreateUserRequest request) {
         try {
             User user = userService.createUser(request);
-            return ResponseEntity.ok(new ApiResponse("Create User Success", user));
+            UserDTO userDTO = userService.convertUserToDTO(user);
+            return ResponseEntity.ok(new ApiResponse("Create User Success", userDTO));
         } catch (AlreadyExistsException e) {
             // TODO Auto-generated catch block
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -55,7 +58,8 @@ public class UserController {
     public ResponseEntity<ApiResponse> updateUser(@RequestBody UserUpdateRequest request, @PathVariable Long userId) {
         try {
             User user = userService.updateUser(request, userId);
-            return ResponseEntity.ok(new ApiResponse("Update Success", user));
+            UserDTO userDTO = userService.convertUserToDTO(user);
+            return ResponseEntity.ok(new ApiResponse("Update Success", userDTO));
         } catch (ResourceNotFound e) {
             // TODO Auto-generated catch block
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

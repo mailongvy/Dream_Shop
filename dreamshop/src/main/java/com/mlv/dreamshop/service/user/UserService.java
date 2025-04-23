@@ -2,6 +2,8 @@ package com.mlv.dreamshop.service.user;
 
 import java.util.Optional;
 
+import com.mlv.dreamshop.dto.UserDTO;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.mlv.dreamshop.DAO.UserRepository;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService implements IUserService {
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     
 
@@ -60,6 +63,11 @@ public class UserService implements IUserService {
         }).orElseThrow(() -> new ResourceNotFound("User not found"));
 
 
+    }
+
+    @Override
+    public UserDTO convertUserToDTO(User user) {
+        return modelMapper.map(user, UserDTO.class);
     }
     
 }

@@ -1,6 +1,5 @@
 package com.mlv.dreamshop.dto;
 
-import com.mlv.dreamshop.Model.Cart;
 import lombok.Data;
 
 import java.util.List;
