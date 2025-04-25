@@ -1,5 +1,8 @@
 package com.mlv.dreamshop.Controller;
 
+// import com.mlv.dreamshop.Model.Cart;
+// import com.mlv.dreamshop.Model.User;
+import com.mlv.dreamshop.service.user.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,23 +26,44 @@ import lombok.RequiredArgsConstructor;
 public class CartItemController {
     private final ICartItemService cartItemService;
     private final ICartService cartService;
+    private final IUserService userService;
+
+
+//    @PostMapping("/item/add")
+//    public ResponseEntity<ApiResponse> addItemToCart(@RequestParam(required = false) Long cartId,
+//                                                    @RequestParam Long productId,
+//                                                    @RequestParam Integer quantity) {
+//            try {
+//                if (cartId == null) {
+//                    cartId = cartService.initializeNewCart();
+//                }
+//                cartItemService.addItemToCart(cartId, productId, quantity);
+//                return ResponseEntity.ok(new ApiResponse("Add item successfully", null));
+//            } catch (ResourceNotFound e) {
+//                // TODO Auto-generated catch block
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                              .body(new ApiResponse(e.getMessage(), null));
+//            }
+//    }
 
     @PostMapping("/item/add")
-    public ResponseEntity<ApiResponse> addItemToCart(@RequestParam(required = false) Long cartId, 
-                                                    @RequestParam Long productId, 
-                                                    @RequestParam Integer quantity) {
-            try {
-                if (cartId == null) {
-                    cartId = cartService.initializeNewCart();
-                }
-                cartItemService.addItemToCart(cartId, productId, quantity);
-                return ResponseEntity.ok(new ApiResponse("Add item successfully", null));
-            } catch (ResourceNotFound e) {
-                // TODO Auto-generated catch block
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                              .body(new ApiResponse(e.getMessage(), null));
+    public ResponseEntity<ApiResponse> addItemToCart(@RequestParam(required = false) Long cartId,
+                                                     @RequestParam Long productId,
+                                                     @RequestParam Integer quantity) {
+        try {
+            if (cartId == null) {
+                cartId = cartService.initializeNewCart();
             }
+            cartItemService.addItemToCart(cartId, productId, quantity);
+            return ResponseEntity.ok(new ApiResponse("Add item successfully", null));
+        } catch (ResourceNotFound e) {
+            // TODO Auto-generated catch block
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse(e.getMessage(), null));
+        }
     }
+
+
 
     // remove item from the cart
     @DeleteMapping("/cart/{cartId}/item/{itemId}/remove")

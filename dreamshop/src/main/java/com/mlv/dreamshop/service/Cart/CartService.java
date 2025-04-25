@@ -2,7 +2,9 @@ package com.mlv.dreamshop.service.Cart;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Optional;
 
+import com.mlv.dreamshop.Model.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +61,17 @@ public class CartService implements ICartService {
         cart.setItems(new HashSet<>());
         cartRepository.save(cart);
         return cart.getId();
+    }
+
+    @Transactional
+    @Override
+    public Cart initializeNewCart(User user) {
+        return Optional.ofNullable(getCartsByUserId(user.getId()))
+                        .orElseGet(() -> {
+                            Cart cart = new Cart();
+                            cart.setUser(user);
+                            return cartRepository.save(cart);
+                        });
     }
 
 
