@@ -43,8 +43,10 @@ public class OrderService implements IOrderService {
     @Transactional
     public Order placeOrder(Long userId) {
         // TODO Auto-generated method stub
+        // get cart to make the order
         Cart cart = cartService.getCartsByUserId(userId);
 
+        // after finding the cart make the order belong to cart
         Order order = createOrder(cart);
         List<OrderItem> orderItemList = createOrderItems(order, cart);
 
@@ -72,7 +74,6 @@ public class OrderService implements IOrderService {
 
 
     // tạo ra các order item thông qua các cart item
-
     private List<OrderItem> createOrderItems(Order order, Cart cart) {
         return cart.getItems().stream().map(cartItem -> {
             Product product = cartItem.getProduct();

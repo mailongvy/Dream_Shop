@@ -65,12 +65,16 @@ public class CartService implements ICartService {
 
     @Transactional
     @Override
+    // get cart by user id
     public Cart initializeNewCart(User user) {
         return Optional.ofNullable(getCartsByUserId(user.getId()))
                         .orElseGet(() -> {
                             Cart cart = new Cart();
                             cart.setUser(user);
-                            return cartRepository.save(cart);
+                            cart.setTotalAmount(BigDecimal.ZERO);
+                            cart.setItems(new HashSet<>());
+                            cartRepository.save(cart);
+                            return cart;
                         });
     }
 

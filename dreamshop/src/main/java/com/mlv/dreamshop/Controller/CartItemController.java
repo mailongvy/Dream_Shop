@@ -2,6 +2,8 @@ package com.mlv.dreamshop.Controller;
 
 // import com.mlv.dreamshop.Model.Cart;
 // import com.mlv.dreamshop.Model.User;
+import com.mlv.dreamshop.Model.Cart;
+import com.mlv.dreamshop.Model.User;
 import com.mlv.dreamshop.service.user.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,14 +49,14 @@ public class CartItemController {
 //    }
 
     @PostMapping("/item/add")
-    public ResponseEntity<ApiResponse> addItemToCart(@RequestParam(required = false) Long cartId,
+    public ResponseEntity<ApiResponse> addItemToCart(
                                                      @RequestParam Long productId,
                                                      @RequestParam Integer quantity) {
         try {
-            if (cartId == null) {
-                cartId = cartService.initializeNewCart();
-            }
-            cartItemService.addItemToCart(cartId, productId, quantity);
+            User user = userService.getUserById(1L);
+            Cart cart = cartService.initializeNewCart(user);
+
+            cartItemService.addItemToCart(cart.getId(), productId, quantity);
             return ResponseEntity.ok(new ApiResponse("Add item successfully", null));
         } catch (ResourceNotFound e) {
             // TODO Auto-generated catch block

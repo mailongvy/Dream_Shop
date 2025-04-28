@@ -18,7 +18,7 @@ public interface ICartService {
 
     Long initializeNewCart();
 
-    @Transactional
+
     Cart initializeNewCart(User user);
 
     Cart getCartsByUserId(Long userId);
