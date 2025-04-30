@@ -144,6 +144,11 @@ public class ProductService implements IProductService {
         
     }
 
+    // check product already in the db
+    private boolean productExist(String name, String brand) {
+        return productRepository.existsByNameAndBrand(name, brand);
+    }
+
     private Product createProduct(AddProductRequest request, Category category) {
         return new Product(
             request.getName(), 
