@@ -2,6 +2,7 @@ package com.mlv.dreamshop.Controller;
 
 import java.util.List;
 
+import com.mlv.dreamshop.exceptions.AlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -61,10 +62,10 @@ public class ProductController {
         try {
             Product product1 = productService.addProuct(product);
             return ResponseEntity.ok(new ApiResponse("Add successfully", product1));
-        } catch (Exception e) {
+        } catch (AlreadyExistsException e) {
             // TODO Auto-generated catch block
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(new ApiResponse("Failed", null));
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                                 .body(new ApiResponse(e.getMessage(), null));
         }
     }
 
