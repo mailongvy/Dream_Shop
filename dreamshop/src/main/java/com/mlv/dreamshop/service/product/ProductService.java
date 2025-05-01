@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.mlv.dreamshop.Model.Category;
 import com.mlv.dreamshop.Model.Image;
 
+import com.mlv.dreamshop.exceptions.AlreadyExistsException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -133,6 +134,11 @@ public class ProductService implements IProductService {
         // check if the category found in the Db
         // if yes set it  as the new product
         // if no  save it as a new category
+
+        if (productExist(request.getName(), request.getBrand())  ) {
+            throw new AlreadyExistsException(request.getName() + " " + request.getBrand() + "already exists");
+        }
+
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                             .orElseGet(() -> {
                                 Category newCategory = new Category(request.getCategory().getName());
