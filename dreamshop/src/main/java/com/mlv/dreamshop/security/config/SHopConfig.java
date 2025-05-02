@@ -1,4 +1,4 @@
-package com.mlv.dreamshop.config;
+package com.mlv.dreamshop.security.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

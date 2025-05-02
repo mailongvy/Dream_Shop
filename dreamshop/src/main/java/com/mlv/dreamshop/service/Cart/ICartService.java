@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 import com.mlv.dreamshop.Model.Cart;
 import com.mlv.dreamshop.Model.User;
-import org.springframework.transaction.annotation.Transactional;
 
 public interface ICartService {
     // get cart by the id
