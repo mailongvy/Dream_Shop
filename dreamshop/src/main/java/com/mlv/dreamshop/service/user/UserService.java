@@ -4,6 +4,9 @@ import java.util.Optional;
 
 import com.mlv.dreamshop.dto.UserDTO;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mlv.dreamshop.DAO.UserRepository;
@@ -20,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     
 
@@ -31,7 +35,7 @@ public class UserService implements IUserService {
                        .map(req -> {
                             User user = new User(); 
                             user.setEmail(req.getEmail());
-                            user.setPassword(req.getEmail());
+                            user.setPassword(passwordEncoder.encode(req.getPassword()));
                             user.setFirstName(req.getFirstName());
                             user.setLastName(req.getLastName());
                             return userRepository.save(user);
@@ -69,5 +73,11 @@ public class UserService implements IUserService {
     public UserDTO convertUserToDTO(User user) {
         return modelMapper.map(user, UserDTO.class);
     }
-    
+
+    @Override
+    public User getAuthenticationUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userRepository.findByEmail(email);
+    }
 }
