@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final JwtUtils jwtUtils;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
-    private static final List<String> SECURED_URLS = List.of("");
+    private static final List<String> SECURED_URLS = List.of("/api/v1/cart/**", "/api/v1/order/**", "/api/v1/user/**", "/api/v1/cartItems/**");
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
