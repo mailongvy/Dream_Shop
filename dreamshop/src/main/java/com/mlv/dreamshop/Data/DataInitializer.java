@@ -9,6 +9,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -21,6 +22,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
 
 
     @Override
+    @Transactional
     public void onApplicationEvent(ApplicationReadyEvent event) {
         Set<String> defaultRoles = Set.of("ROLE_USER", "ROLE_ADMIN");
         createDefaultUserIfNotExist();
@@ -86,7 +88,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
     public void createDefaultRoleIfNotExist(Set<String> roles) {
         // TODO Auto-generated method stub
          roles.stream()
-                 .filter(role -> roleRepository.findByName(role).getName().isEmpty())
+                 .filter(role -> !roleRepository.existsByName(role))
                  .map(Role::new).forEach(roleRepository::save);
     }
 }
