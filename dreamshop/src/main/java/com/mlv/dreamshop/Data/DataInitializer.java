@@ -25,12 +25,13 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
     @Transactional
     public void onApplicationEvent(ApplicationReadyEvent event) {
         Set<String> defaultRoles = Set.of("ROLE_USER", "ROLE_ADMIN");
-        createDefaultUserIfNotExist();
         createDefaultRoleIfNotExist(defaultRoles);
+        createDefaultUserIfNotExist();
         createDefaultAdminIfNotExist();
     }
 
     // default user
+    // tạo user mac dinh (tao 5 user)
     public void createDefaultUserIfNotExist() {
         Role role = roleRepository.findByName("ROLE_USER");
         for (int i = 1; i <= 5; i++) {
@@ -56,6 +57,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
     }
 
     // default admin
+    // create 2 admin
     public void createDefaultAdminIfNotExist() {
         Role role = roleRepository.findByName("ROLE_ADMIN");
         for (int i = 1; i <= 2; i++) {
@@ -85,10 +87,16 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
         return ApplicationListener.super.supportsAsyncExecution();
     }
 
+    // tao role mac dinh
     public void createDefaultRoleIfNotExist(Set<String> roles) {
         // TODO Auto-generated method stub
          roles.stream()
                  .filter(role -> !roleRepository.existsByName(role))
-                 .map(Role::new).forEach(roleRepository::save);
+                 .map(role -> {
+                     Role newRole = new Role();
+                     newRole.setName(role);
+                     return newRole;
+                 })
+                 .forEach(roleRepository::save);
     }
 }
