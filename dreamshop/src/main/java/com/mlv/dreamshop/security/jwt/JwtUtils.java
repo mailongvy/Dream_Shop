@@ -4,6 +4,7 @@ import com.mlv.dreamshop.security.user.ShopUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,6 +21,14 @@ public class JwtUtils {
 
     @Value("${auth.token.expirationInMils}")
     private int expirationTime;
+
+    // kiểm tra jwt có null không
+    @PostConstruct
+    public void init() {
+        if (jwtSecret == null || jwtSecret.trim().isEmpty()) {
+            throw new IllegalStateException("JWT secret (auth.token.jwtSecret) must be configured in application.properties and cannot be empty");
+        }
+    }
 
     public String generateTokenForUser(Authentication authentication) {
         ShopUserDetails userPrincipal = (ShopUserDetails) authentication.getPrincipal();

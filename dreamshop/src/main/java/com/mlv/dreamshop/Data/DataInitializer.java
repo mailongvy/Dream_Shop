@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 @Component
+@Transactional
 @RequiredArgsConstructor
 public class DataInitializer implements ApplicationListener<ApplicationReadyEvent> {
     private final UserRepository userRepository;
