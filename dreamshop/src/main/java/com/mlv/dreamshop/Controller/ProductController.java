@@ -5,6 +5,7 @@ import java.util.List;
 import com.mlv.dreamshop.exceptions.AlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,7 +56,7 @@ public class ProductController {
         }
     }
     
-    
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("product/add")
     // add product
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest product) {
@@ -69,6 +70,7 @@ public class ProductController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/product/update/{productId}")
     //update product
     public ResponseEntity<ApiResponse> updateProduct(@RequestBody UpdateProductRequest request, @PathVariable Long productId) {
@@ -83,6 +85,7 @@ public class ProductController {
     }
 
     // delete product by the id
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/product/delete/{productId}")
     public ResponseEntity<ApiResponse> deleteProductByTheId(@PathVariable Long productId) {
         try {
