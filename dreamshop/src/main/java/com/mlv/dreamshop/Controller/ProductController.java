@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("${apiPrefix}/products")
-public class ProductController {
+public class    ProductController {
     private final ProductService productService;
 
     //get all products
