@@ -34,3 +34,6 @@ build/
 
 **/src/main/resources/application.
 application.properties
+
+# chứa những thông tin nhạy cảm
+.env 
