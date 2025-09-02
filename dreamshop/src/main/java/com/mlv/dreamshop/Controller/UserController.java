@@ -1,6 +1,5 @@
 package com.mlv.dreamshop.Controller;
 
-import com.mlv.dreamshop.dto.UserDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mlv.dreamshop.Model.User;
 import com.mlv.dreamshop.Response.ApiResponse;
+import com.mlv.dreamshop.dto.UserDTO;
 import com.mlv.dreamshop.exceptions.AlreadyExistsException;
 import com.mlv.dreamshop.exceptions.ResourceNotFound;
 import com.mlv.dreamshop.request.CreateUserRequest;

@@ -1,12 +1,20 @@
 package com.mlv.dreamshop.Controller;
 
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,13 +27,6 @@ import com.mlv.dreamshop.exceptions.ImageNotFoundException;
 import com.mlv.dreamshop.service.image.IImageService;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 
 
 
@@ -49,20 +50,38 @@ public class ImageController {
     }
 
     @GetMapping("/image/download/{imageId}")
-    public ResponseEntity<ByteArrayResource> downloadImage(@PathVariable Long imageId) {
+    public ResponseEntity<?> downloadImage(@PathVariable Long imageId) {
         try {
             Image image = imageService.getImageById(imageId);
-            ByteArrayResource resource = new ByteArrayResource(image.getImage().getBytes(1 , (int)image.getImage().length()));
-            return ResponseEntity.ok().contentType(MediaType.parseMediaType(image.getFileType()))
-                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + image.getFileName()+"\"")
-                    .body(resource);
+            
+            // Nếu có MinIO URL, redirect đến MinIO
+            if (image.getDownloadUrl() != null && !image.getDownloadUrl().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FOUND)
+                        .location(URI.create(image.getDownloadUrl()))
+                        .build();
+            }
+            
+            // Fallback: serve từ database blob (để backward compatibility)
+            if (image.getImage() != null) {
+                ByteArrayResource resource = new ByteArrayResource(
+                    image.getImage().getBytes(1, (int)image.getImage().length())
+                );
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(image.getFileType()))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, 
+                               "attachment; filename=\"" + image.getFileName() + "\"")
+                        .body(resource);
+            }
+            
+            return ResponseEntity.notFound().build();
+            
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        
-
     }
 
     @PutMapping("/image/update/{imageId}")
@@ -85,7 +104,7 @@ public class ImageController {
         
     }
 
-    @DeleteMapping("image/delete/{imageId}")
+    @DeleteMapping("/image/delete/{imageId}")
     public ResponseEntity<ApiResponse> deleteImage(@PathVariable Long imageId) {
         try {
             Image image = imageService.getImageById(imageId);

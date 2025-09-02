@@ -1,13 +1,18 @@
 package com.mlv.dreamshop.Model;
 
-import jakarta.persistence.*;
+import java.util.Collection;
+import java.util.HashSet;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 
 @Entity
 @Getter
@@ -26,5 +31,6 @@ public class Role {
     @ManyToMany(
             mappedBy = "roles"
     )
+    @JsonIgnore  // Prevent circular reference with User
     private Collection<User> users = new HashSet<>();
 }

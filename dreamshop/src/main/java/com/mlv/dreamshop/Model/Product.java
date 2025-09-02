@@ -3,7 +3,7 @@ package com.mlv.dreamshop.Model;
 import java.math.BigDecimal;
 import java.util.List;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -40,6 +40,7 @@ public class Product {
 
     // a product have alot of images
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore  // Prevent infinite recursion and Blob serialization issues
     private List<Image> images;
 
     public Product(String name, String brand, BigDecimal price, int inventory, String description) {

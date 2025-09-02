@@ -14,6 +14,7 @@ public interface ICartItemService {
 
     CartItem getCartItem(Long cartId, Long productId);
 
-
-
+    // New methods for cart item operations by itemId
+    void updateItemQuantityByItemId(Long itemId, int quantity);
+    void removeItemByItemId(Long itemId);
 }

@@ -105,4 +105,42 @@ public class CartItemService implements ICartItemService {
                               .orElseThrow(() -> new ResourceNotFound("Item not found"));
     }
 
+    @Override
+    @Transactional
+    public void updateItemQuantityByItemId(Long itemId, int quantity) {
+        CartItem cartItem = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFound("Cart item not found"));
+        
+        cartItem.setQuantity(quantity);
+        cartItem.setTotalPrice();
+        cartItemRepository.save(cartItem);
+        
+        // Update cart total amount
+        Cart cart = cartItem.getCart();
+        BigDecimal totalAmount = cart.getItems()
+                                     .stream()
+                                     .map(CartItem::getTotalPrice)
+                                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+        cart.setTotalAmount(totalAmount);
+        cartRepository.save(cart);
+    }
+
+    @Override
+    @Transactional
+    public void removeItemByItemId(Long itemId) {
+        CartItem cartItem = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFound("Cart item not found"));
+        
+        Cart cart = cartItem.getCart();
+        cart.getItems().remove(cartItem);
+        cartItemRepository.delete(cartItem);
+        
+        // Update cart total amount
+        BigDecimal totalAmount = cart.getItems()
+                                     .stream()
+                                     .map(CartItem::getTotalPrice)
+                                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+        cart.setTotalAmount(totalAmount);
+        cartRepository.save(cart);
+    }
 }

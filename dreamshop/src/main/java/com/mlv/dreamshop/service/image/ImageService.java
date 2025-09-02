@@ -15,6 +15,7 @@ import com.mlv.dreamshop.Model.Image;
 import com.mlv.dreamshop.Model.Product;
 import com.mlv.dreamshop.dto.ImageDTO;
 import com.mlv.dreamshop.exceptions.ImageNotFoundException;
+import com.mlv.dreamshop.service.minio.MinioService;
 import com.mlv.dreamshop.service.product.IProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class ImageService implements IImageService {
     private final ImageRepository imageRepository;
     private final IProductService productService;
+    private final MinioService minioService;
 
     @Override
     public void deleteImageById(Long id) {
@@ -46,36 +48,44 @@ public class ImageService implements IImageService {
         List<ImageDTO> saveImages = new ArrayList<>();
         for (MultipartFile multipartFile : files) {
             try {
+                // update to minio
+                String minioFileName = minioService.uploadFile(multipartFile);
+                String publicUrl = minioService.getPublicUrl(minioFileName);
+
                 Image image = new Image();
                 image.setFileName(multipartFile.getOriginalFilename());
                 image.setFileType(multipartFile.getContentType());
-                image.setImage(new SerialBlob(multipartFile.getBytes()));
+                image.setMinioFileName(minioFileName);
+                image.setDownloadUrl(publicUrl);
+                image.setImage(new SerialBlob(multipartFile.getBytes())); // khi có minio sẽ ko cần set image
                 image.setProduct(product);
 
                 // hình ảnh này ch được lưu trong cơ sở dữ liệu nên id của nó sẽ được set là null
                 // nên sau khi lưu thì phải thay đổi địa chỉ url bằng cách phải set lại url một lần nx
-                String buildDownloadUrl = "api/v1/images/image/download/";
-                String downloadUrl = buildDownloadUrl + image.getId();
-                image.setDownloadUrl(downloadUrl);
+
+                // String buildDownloadUrl = "api/v1/images/image/download/";
+                // String downloadUrl = buildDownloadUrl + image.getId();
+                // image.setDownloadUrl(downloadUrl);
 
                 // lần save đầu tiên lấy id cụ thể của image
                 Image savedImage = imageRepository.save(image);
-                // sau khi luuw thì image bây h đã có id nên nên có thể gọi được hàm getId để lấy id
-                savedImage.setDownloadUrl(buildDownloadUrl + savedImage.getId());
+                // // sau khi luuw thì image bây h đã có id nên nên có thể gọi được hàm getId để lấy id
+                // savedImage.setDownloadUrl(buildDownloadUrl + savedImage.getId());
 
                 // lần save thứ hai là cập nhật lại đường url cho dữ liệu
-                imageRepository.save(savedImage);   
+                // imageRepository.save(savedImage);   
 
                 // trường dto chỉ hiện ra những thông tin cần thiết cho image ko in ra những thông tin quan trọng
                 ImageDTO imageDTO = new ImageDTO();
                 imageDTO.setImageId(savedImage.getId());
                 imageDTO.setFileName(savedImage.getFileName());
                 imageDTO.setDownloadUrl(savedImage.getDownloadUrl());
+
                 saveImages.add(imageDTO);
 
             } catch (Exception e) {
                 // TODO: handle exception
-                e.printStackTrace();
+                throw new RuntimeException("Failed to save image: ", e);
             }
         }
         return saveImages;
@@ -86,9 +96,22 @@ public class ImageService implements IImageService {
         // TODO Auto-generated method stub
         Image image = getImageById(imageId);
         try {
+            // muốn cập nhật sẽ xoá file cũ đi xong add file mới vào lại
+            // Delete old file from MinIO
+            if (image.getMinioFileName() != null) {
+                minioService.deleteFile(image.getMinioFileName());
+            }
+
+            // upload new file
+            String minioFileName = minioService.uploadFile(file);
+            String publicUrl = minioService.getPublicUrl(minioFileName);
+
             image.setFileName(file.getOriginalFilename());
             image.setFileType(file.getContentType());
+            image.setMinioFileName(minioFileName);
+            image.setDownloadUrl(publicUrl);
             image.setImage(new SerialBlob(file.getBytes()));
+            
             imageRepository.save(image);
         } catch (IOException | SQLException e) {
             throw new RuntimeException("Failed to update image", e);

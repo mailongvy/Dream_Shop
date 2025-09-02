@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản phẩm - Dream Shop</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+            color: #e91e63 !important;
+        }
+        
+        .btn-primary {
+            background-color: #e91e63;
+            border-color: #e91e63;
+        }
+        
+        .btn-primary:hover {
+            background-color: #c2185b;
+            border-color: #c2185b;
+        }
+        
+        .card-product {
+            transition: transform 0.2s;
+            height: 100%;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card-product:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .product-image {
+            height: 250px;
+            object-fit: cover;
+            border-top-left-radius: 0.375rem;
+            border-top-right-radius: 0.375rem;
+        }
+        
+        .price {
+            color: #e91e63;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+        
+        .original-price {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 0.9em;
+        }
+        
+        .discount-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e91e63;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+        }
+        
+        .category-filter {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        
+        .search-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .cart-badge {
+            background-color: #e91e63;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.8em;
+        }
+        
+        .btn-add-cart {
+            background: linear-gradient(135deg, #e91e63, #c2185b);
+            border: none;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+        
+        .btn-add-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
+        }
+        
+        .product-rating {
+            color: #ffc107;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-store"></i> Dream Shop
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/shop">Sản phẩm</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cart">
+                            <i class="fas fa-shopping-cart"></i> 
+                            Giỏ hàng <span class="cart-badge" id="cartCount">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login" id="loginLink">Đăng nhập</a>
+                    </li>
+                    <li class="nav-item dropdown d-none" id="userDropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> Tài khoản
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/profile">Thông tin cá nhân</a></li>
+                            <li><a class="dropdown-item" href="/orders">Đơn hàng</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <h2 class="text-center mb-4">Tìm sản phẩm yêu thích</h2>
+                    <div class="input-group input-group-lg">
+                        <input type="text" class="form-control" id="searchInput" 
+                               placeholder="Tìm kiếm sản phẩm..." th:value="${searchQuery}">
+                        <button class="btn btn-light" type="button" onclick="searchProducts()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="row">
+            <!-- Category Filter -->
+            <div class="col-md-3 mb-4">
+                <div class="category-filter">
+                    <h5><i class="fas fa-filter"></i> Danh mục</h5>
+                    <div class="list-group list-group-flush">
+                        <a href="/shop" class="list-group-item list-group-item-action" 
+                           th:classappend="${selectedCategory == null} ? 'active' : ''">
+                            <i class="fas fa-th-large"></i> Tất cả sản phẩm
+                        </a>
+                        <a th:each="category : ${categories}" 
+                           th:href="@{/shop(category=${category.name})}"
+                           th:text="${category.name}"
+                           th:classappend="${selectedCategory == category.name} ? 'active' : ''"
+                           class="list-group-item list-group-item-action">
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Price Filter -->
+                <div class="category-filter mt-4">
+                    <h5><i class="fas fa-dollar-sign"></i> Khoảng giá</h5>
+                    <div class="mb-3">
+                        <label for="minPrice" class="form-label">Từ:</label>
+                        <input type="number" class="form-control" id="minPrice" placeholder="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="maxPrice" class="form-label">Đến:</label>
+                        <input type="number" class="form-control" id="maxPrice" placeholder="1000">
+                    </div>
+                    <button class="btn btn-primary w-100" onclick="filterByPrice()">
+                        <i class="fas fa-filter"></i> Lọc giá
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Products -->
+            <div class="col-md-9">
+                <!-- Results Info -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>
+                        <span th:if="${selectedCategory}" th:text="'Danh mục: ' + ${selectedCategory}"></span>
+                        <span th:if="${searchQuery}" th:text="'Kết quả tìm kiếm: ' + ${searchQuery}"></span>
+                        <span th:if="${selectedCategory == null && searchQuery == null}">Tất cả sản phẩm</span>
+                    </h4>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-sort"></i> Sắp xếp
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="sortProducts('name')">Tên A-Z</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="sortProducts('price-asc')">Giá thấp đến cao</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="sortProducts('price-desc')">Giá cao đến thấp</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="sortProducts('newest')">Mới nhất</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Loading -->
+                <div class="loading" id="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                    <p>Đang tải sản phẩm...</p>
+                </div>
+                
+                <!-- Alert Messages -->
+                <div id="alertContainer"></div>
+                
+                <!-- Products Grid -->
+                <div class="row" id="productsContainer">
+                    <div th:if="${#lists.isEmpty(products)}" class="col-12 text-center py-5">
+                        <i class="fas fa-box-open fa-5x text-muted mb-3"></i>
+                        <h4 class="text-muted">Không tìm thấy sản phẩm nào</h4>
+                        <p class="text-muted">Thử thay đổi từ khóa tìm kiếm hoặc danh mục khác.</p>
+                        <a href="/shop" class="btn btn-primary">Xem tất cả sản phẩm</a>
+                    </div>
+                    
+                    <div th:each="product : ${products}" class="col-lg-4 col-md-6 mb-4">
+                        <div class="card card-product">
+                            <div class="position-relative">
+                                <!-- Safe image loading with MinIO URLs -->
+                                <img th:if="${product.images != null and !#lists.isEmpty(product.images) and product.images[0].downloadUrl != null}" 
+                                     th:src="${product.images[0].downloadUrl}" 
+                                     th:alt="${product.name}"
+                                     class="card-img-top product-image"
+                                     onerror="this.src='https://via.placeholder.com/300x250?text=No+Image'">
+                                <img th:if="${product.images == null or #lists.isEmpty(product.images) or product.images[0].downloadUrl == null}" 
+                                     src="https://via.placeholder.com/300x250?text=No+Image" 
+                                     alt="No Image"
+                                     class="card-img-top product-image">
+                                <!-- Remove discount badge since discountPercent doesn't exist in Product model -->
+                            </div>
+                            
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title" th:text="${product.name}">Tên sản phẩm</h6>
+                                <p class="card-text text-muted small" th:text="${product.description}">Mô tả sản phẩm</p>
+                                
+                                <!-- Rating -->
+                                <div class="product-rating mb-2">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <small class="text-muted">(4.0)</small>
+                                </div>
+                                
+                                <!-- Price -->
+                                <div class="mb-3">
+                                    <span class="price" th:text="'$' + ${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">
+                                        299,000 ₫
+                                    </span>
+                                    <!-- originalPrice doesn't exist in Product model, so removed -->
+                                </div>
+                                
+                                <!-- Add to Cart Button -->
+                                <button class="btn btn-primary btn-add-cart mt-auto" 
+                                        th:onclick="'addToCart(' + ${product.id} + ')'"
+                                        th:disabled="${product.inventory <= 0}">
+                                    <i class="fas fa-cart-plus"></i>
+                                    <span th:if="${product.inventory > 0}">Thêm vào giỏ</span>
+                                    <span th:if="${product.inventory <= 0}">Hết hàng</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <nav aria-label="Page navigation" th:if="${totalPages > 1}" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                            <a class="page-link" th:href="@{/shop(page=${currentPage - 1}, category=${selectedCategory})}">Trước</a>
+                        </li>
+                        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                            class="page-item" th:classappend="${i == currentPage} ? 'active' : ''">
+                            <a class="page-link" th:href="@{/shop(page=${i}, category=${selectedCategory})}" th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                            <a class="page-link" th:href="@{/shop(page=${currentPage + 1}, category=${selectedCategory})}">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('jwt-token');
+            if (token) {
+                document.getElementById('loginLink').style.display = 'none';
+                document.getElementById('userDropdown').classList.remove('d-none');
+            }
+            
+            updateCartCount();
+        });
+        
+        // Search products
+        function searchProducts() {
+            const searchQuery = document.getElementById('searchInput').value;
+            if (searchQuery.trim()) {
+                window.location.href = `/shop?search=${encodeURIComponent(searchQuery)}`;
+            } else {
+                window.location.href = '/shop';
+            }
+        }
+        
+        // Search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchProducts();
+            }
+        });
+        
+        // Add to cart function
+        async function addToCart(productId) {
+            const token = localStorage.getItem('jwt-token');
+            
+            if (!token) {
+                showAlert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!', 'warning');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/v1/cartItems/item/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: `productId=${productId}&quantity=1`
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+                    updateCartCount();
+                } else {
+                    showAlert(data.message || 'Không thể thêm sản phẩm vào giỏ hàng!', 'danger');
+                }
+            } catch (error) {
+                showAlert('Có lỗi xảy ra, vui lòng thử lại!', 'danger');
+                console.error('Add to cart error:', error);
+            }
+        }
+        
+        // Update cart count
+        async function updateCartCount() {
+            const token = localStorage.getItem('jwt-token');
+            
+            if (!token) return;
+            
+            try {
+                // Since we don't have a direct API to get cart by user,
+                // we'll just set count to 0 for now
+                // TODO: Implement proper cart API
+                document.getElementById('cartCount').textContent = '0';
+            } catch (error) {
+                console.error('Update cart count error:', error);
+                document.getElementById('cartCount').textContent = '0';
+            }
+        }
+        
+        // Filter by price
+        function filterByPrice() {
+            const minPrice = document.getElementById('minPrice').value;
+            const maxPrice = document.getElementById('maxPrice').value;
+            
+            let url = '/shop?';
+            if (minPrice) url += `minPrice=${minPrice}&`;
+            if (maxPrice) url += `maxPrice=${maxPrice}&`;
+            
+            window.location.href = url;
+        }
+        
+        // Sort products
+        function sortProducts(sortBy) {
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('sort', sortBy);
+            window.location.href = currentUrl.toString();
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('jwt-token');
+            localStorage.removeItem('user-id');
+            window.location.href = '/login';
+        }
+        
+        // Show alert function
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.getElementById('alertContainer');
+            container.appendChild(alertDiv);
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

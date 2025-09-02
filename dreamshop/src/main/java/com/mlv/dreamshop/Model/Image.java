@@ -2,6 +2,8 @@ package com.mlv.dreamshop.Model;
 
 import java.sql.Blob;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,8 +30,10 @@ public class Image {
     private String fileName;
     private String fileType;
     private String downloadUrl;
+    private String minioFileName; // file name trong minio
 
     @Lob
+    @JsonIgnore  // Ignore this field when serializing to JSON
     private Blob image;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})

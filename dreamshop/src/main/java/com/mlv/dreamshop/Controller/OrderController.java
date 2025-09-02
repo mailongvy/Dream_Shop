@@ -30,6 +30,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse> createOrder(@RequestParam Long userId) {
         try {
             Order order = orderService.placeOrder(userId);
+            // orderService.testPartion2();
             OrderDTO orderDTO = orderService.convertToDto(order);
             return ResponseEntity.ok(new ApiResponse("Item Order success", orderDTO));
         } catch (Exception e) {
@@ -54,12 +55,20 @@ public class OrderController {
     @GetMapping("/orderByUserId/{userId}")
     public ResponseEntity<ApiResponse> getUsersOrder(@PathVariable Long userId) {
         try {
-            List<OrderDTO> order = orderService.getUserOrder(userId);
-            return ResponseEntity.ok(new ApiResponse("Order found", order));
+            System.out.println("DEBUG: Getting orders for userId: " + userId); // Debug log
+            List<OrderDTO> orders = orderService.getUserOrder(userId);
+            System.out.println("DEBUG: Found " + orders.size() + " orders"); // Debug log
+            return ResponseEntity.ok(new ApiResponse("Order found", orders));
         } catch (ResourceNotFound e) {
             // TODO Auto-generated catch block
+            System.out.println("DEBUG: ResourceNotFound: " + e.getMessage()); // Debug log
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body(new ApiResponse(e.getMessage(), null));
+        } catch (Exception e) {
+            System.out.println("DEBUG: Unexpected error: " + e.getMessage()); // Debug log
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new ApiResponse("Error getting orders: " + e.getMessage(), null));
         }
     }
 

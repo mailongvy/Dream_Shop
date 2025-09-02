@@ -8,4 +8,5 @@ public class ImageDTO {
     private Long imageId;
     private String fileName;
     private String downloadUrl;
+    private String fileType;
 }

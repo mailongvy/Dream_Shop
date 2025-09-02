@@ -2,13 +2,15 @@ package com.mlv.dreamshop.Controller;
 
 import java.util.List;
 
-import com.mlv.dreamshop.exceptions.AlreadyExistsException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,15 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mlv.dreamshop.Model.Product;
 import com.mlv.dreamshop.Response.ApiResponse;
 import com.mlv.dreamshop.dto.ProductDTO;
+import com.mlv.dreamshop.exceptions.AlreadyExistsException;
 import com.mlv.dreamshop.exceptions.ProductNotFoundException;
 import com.mlv.dreamshop.request.AddProductRequest;
 import com.mlv.dreamshop.request.UpdateProductRequest;
 import com.mlv.dreamshop.service.product.ProductService;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 
 
 @RequiredArgsConstructor
@@ -57,7 +57,7 @@ public class    ProductController {
     }
     
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("product/add")
+    @PostMapping(value = "product/add")
     // add product
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest product) {
         try {
@@ -71,7 +71,7 @@ public class    ProductController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/product/update/{productId}")
+    @PutMapping(value = "/product/update/{productId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     //update product
     public ResponseEntity<ApiResponse> updateProduct(@RequestBody UpdateProductRequest request, @PathVariable Long productId) {
         try {

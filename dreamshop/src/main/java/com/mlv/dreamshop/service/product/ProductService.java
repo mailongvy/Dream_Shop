@@ -2,19 +2,19 @@ package com.mlv.dreamshop.service.product;
 
 import java.util.List;
 import java.util.Optional;
-import com.mlv.dreamshop.Model.Category;
-import com.mlv.dreamshop.Model.Image;
 
-import com.mlv.dreamshop.exceptions.AlreadyExistsException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.mlv.dreamshop.DAO.CategoryRepository;
 import com.mlv.dreamshop.DAO.ImageRepository;
 import com.mlv.dreamshop.DAO.ProductRepository;
+import com.mlv.dreamshop.Model.Category;
+import com.mlv.dreamshop.Model.Image;
 import com.mlv.dreamshop.Model.Product;
 import com.mlv.dreamshop.dto.ImageDTO;
 import com.mlv.dreamshop.dto.ProductDTO;
+import com.mlv.dreamshop.exceptions.AlreadyExistsException;
 import com.mlv.dreamshop.exceptions.ProductNotFoundException;
 import com.mlv.dreamshop.request.AddProductRequest;
 import com.mlv.dreamshop.request.UpdateProductRequest;
@@ -178,7 +178,42 @@ public class ProductService implements IProductService {
     public ProductDTO convertToDto(Product product) {
         ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
         List<Image> images = imageRepository.findByProductId(product.getId());
-        List<ImageDTO> imageDTOs = images.stream().map(image -> modelMapper.map(image, ImageDTO.class)).toList();
+        
+        // Manual mapping để đảm bảo downloadUrl được map đúng
+        List<ImageDTO> imageDTOs = images.stream().map(image -> {
+            ImageDTO imageDTO = new ImageDTO();
+            imageDTO.setImageId(image.getId());
+            imageDTO.setFileName(image.getFileName());
+            imageDTO.setFileType(image.getFileType());
+            
+            // Fix: Ưu tiên MinIO URL, fallback về image controller
+            String downloadUrl = image.getDownloadUrl();
+            if (downloadUrl != null && downloadUrl.startsWith("http://localhost:9000/")) {
+                // Đây là MinIO URL - sử dụng trực tiếp
+                imageDTO.setDownloadUrl(downloadUrl);
+            } else if (image.getMinioFileName() != null && !image.getMinioFileName().isEmpty()) {
+            // Có MinIO filename - tạo MinIO URL
+                String minioUrl = String.format("http://127.0.0.1:9000/dreamshop-images/%s", 
+                                            image.getMinioFileName());
+                imageDTO.setDownloadUrl(minioUrl);
+            } else {
+                // Fix: Đảm bảo không duplicate URL
+                if (downloadUrl != null && downloadUrl.startsWith("/api/v1/images/")) {
+                    // URL đã đúng format - dùng luôn
+                    imageDTO.setDownloadUrl(downloadUrl);
+                } else {
+                    // Tạo mới controller endpoint
+                    imageDTO.setDownloadUrl("/api/v1/images/image/download/" + image.getId());
+                }
+            }
+            // else {
+            //     // Fallback về controller endpoint
+            //     imageDTO.setDownloadUrl("/api/v1/images/image/download/" + image.getId());
+            // }
+            
+            return imageDTO;
+        }).toList();
+        
         productDTO.setImages(imageDTOs);
         return productDTO;
     }

@@ -1,10 +1,7 @@
 package com.mlv.dreamshop.security.config;
 
-import com.mlv.dreamshop.security.jwt.AuthTokenFilter;
-import com.mlv.dreamshop.security.jwt.JwtAuthEntryPoint;
-import com.mlv.dreamshop.security.jwt.JwtUtils;
-import com.mlv.dreamshop.security.user.ShopUserDetailsService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,8 +15,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
-import java.util.List;
+import com.mlv.dreamshop.security.jwt.AuthTokenFilter;
+import com.mlv.dreamshop.security.jwt.JwtAuthEntryPoint;
+import com.mlv.dreamshop.security.jwt.JwtUtils;
+import com.mlv.dreamshop.security.user.ShopUserDetailsService;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
@@ -30,14 +33,22 @@ public class SecurityConfig {
     private final JwtUtils jwtUtils;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
-    private static final List<String> SECURED_URLS = List.of("/api/v1/cart/**", "/api/v1/cartItems/**");
+    private static final List<String> SECURED_URLS = List.of("/api/v1/cart/**", "/api/v1/cartItems/**", "/api/v1/orders/**");
+    private static final List<String> PUBLIC_URLS = List.of(
+            "/", "/login", "/register", "/shop", "/cart", "/orders", "/upload", "/api/v1/auth/**", 
+            "/api/v1/products/**", "/api/v1/categories/**", "/api/v1/images/**", "/api/v1/upload/**",
+            "/css/**", "/js/**", "/images/**", "/favicon.ico"
+    );
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/api/v1/**"))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(PUBLIC_URLS.toArray(String[]::new)).permitAll()
                         .requestMatchers(SECURED_URLS.toArray(String[]::new)).authenticated()
                         .anyRequest().permitAll()
                 );
@@ -64,7 +75,7 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
-        var authProvider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;

@@ -24,16 +24,39 @@ public class CartController {
     private final ICartService cartService;
     
 
-    // public ResponseEntity getCart
+    // Get cart by cartId
     @GetMapping("/{cartId}/my-cart")
     public ResponseEntity<ApiResponse> getCart(@PathVariable Long cartId) {
         try {
             Cart cart = cartService.getCart(cartId);
             return ResponseEntity.ok(new ApiResponse("Success", cart));
         } catch (ResourceNotFound e) {
-            // TODO Auto-generated catch block
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    // Get cart by userId - NEW ENDPOINT
+    @GetMapping("/user/{userId}/my-cart")
+    public ResponseEntity<ApiResponse> getCartByUserId(@PathVariable Long userId) {
+        try {
+            System.out.println("DEBUG: Getting cart for userId: " + userId); // Debug log
+            Cart cart = cartService.getCartsByUserId(userId);
+            System.out.println("DEBUG: Found cart: " + (cart != null ? cart.getId() : "null")); // Debug log
+            if (cart != null && cart.getItems() != null) {
+                System.out.println("DEBUG: Cart has " + cart.getItems().size() + " items"); // Debug log
+            }
+            
+            if (cart == null) {
+                // Return empty cart if no cart found for user
+                return ResponseEntity.ok(new ApiResponse("No cart found for user", null));
+            }
+            return ResponseEntity.ok(new ApiResponse("Success", cart));
+        } catch (Exception e) {
+            System.out.println("DEBUG: Error getting cart: " + e.getMessage()); // Debug log
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new ApiResponse("Error retrieving cart: " + e.getMessage(), null));
         }
     }
 
@@ -63,6 +86,16 @@ public class CartController {
         }
     }   
 
-    
+    // Debug endpoint to check current user
+    @GetMapping("/debug/current-user")
+    public ResponseEntity<ApiResponse> getCurrentUserCart() {
+        try {
+            // This will help us debug what's happening
+            return ResponseEntity.ok(new ApiResponse("Debug endpoint - check logs", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(new ApiResponse("Debug error: " + e.getMessage(), null));
+        }
+    }
 
 }

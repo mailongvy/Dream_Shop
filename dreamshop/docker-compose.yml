@@ -1,15 +1,74 @@
+
 services:
+  # Existing services (mysql, minio, app...)
+  
+  # Zookeeper for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper
+    container_name: dreamshop-zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - dreamshop-network
+
+  # Kafka Broker
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka
+    container_name: dreamshop-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      # số lượng partition 
+      # KAFKA_NUM_PARTITIONS: 2
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      # số lượng record tối đa trong một lần poll
+      # SPRING_KAFKA_CONSUMER_MAX_POLL_RECORDS: 1
+
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - dreamshop-network
+
+  # Kafka UI for monitoring
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: dreamshop-kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: dreamshop-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - dreamshop-network
+
   # minio service
-  # MinIO is an open-source object storage server compatible with Amazon S3
   minio:
     image: minio/minio:latest
     container_name: dreamshop-minio
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}  # MinIO root user
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}  # MinIO root password
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
-      - "9000:9000"  # MinIO API
-      - "9001:9001"  # MinIO Console
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
@@ -20,9 +79,8 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-  
-# MySQL service
-  # MySQL is a popular open-source relational database management system
+
+  # MySQL service
   mysql:
     image: mysql:8.4
     container_name: dreamshop-mysql
@@ -36,11 +94,8 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - ./mysql-data:/var/lib/mysql
-      
-      
     networks:
       - dreamshop-network
-    # command: --default-authentication-plugin=mysql_native_password
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -54,18 +109,42 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      minio:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     environment:
       # Database
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      # MinIO
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin123
+      MINIO_BUCKET_NAME: dreamshop-images
+
       SPRING_JPA_SHOW_SQL: "true"
-      SPRING_PROFILES_ACTIVE: docker    
-      
+      SPRING_PROFILES_ACTIVE: docker
+
       # JWT
       AUTH_TOKEN_JWT_SECRET: ${AUTH_TOKEN_JWT_SECRET}
       AUTH_TOKEN_EXPIRATION_IN_MILS: ${AUTH_TOKEN_EXPIRATION_IN_MILS}
+
+      # Email Configuration
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_FROM: ${MAIL_FROM}
+      MAIL_NAME: ${MAIL_NAME}
+
+      # Kafka Configuration
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: order-confirmation-group
+
     ports:
       - "8080:8080"
     networks:
@@ -79,10 +158,11 @@ services:
       start_period: 60s
 
 volumes:
+  kafka-data:
   minio_data:
     driver: local
-  # mysql_data:
-  #   driver: local
+
 networks:
   dreamshop-network:
-    driver: bridge
+    driver: bridge 
+

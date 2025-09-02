@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MinIO Debug Test</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .debug-section h3 { margin-top: 0; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        button { padding: 10px 15px; margin: 5px; }
+        .result { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>MinIO Debug Test Page</h1>
+    
+    <div class="debug-section">
+        <h3>1. Test Database</h3>
+        <button onclick="testDatabase()">Check Database</button>
+        <div id="database-result" class="result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>2. Test MinIO Connection</h3>
+        <button onclick="testMinIO()">Check MinIO</button>
+        <div id="minio-result" class="result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>3. Test Image URLs</h3>
+        <button onclick="testImageUrls()">Check Image URLs</button>
+        <div id="image-urls-result" class="result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>4. Test Direct MinIO Access</h3>
+        <button onclick="testDirectMinIO()">Test Direct MinIO URL</button>
+        <div id="direct-minio-result" class="result"></div>
+        <br>
+        <img id="test-image" style="max-width: 200px; display: none;" 
+             onload="document.getElementById('direct-minio-result').innerHTML = 'Image loaded successfully'"
+             onerror="document.getElementById('direct-minio-result').innerHTML = 'Image failed to load'">
+    </div>
+
+    <script>
+        function testDatabase() {
+            fetch('/api/v1/debug/database')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('database-result').innerHTML = 
+                        '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                })
+                .catch(error => {
+                    document.getElementById('database-result').innerHTML = 
+                        '<pre>Error: ' + error + '</pre>';
+                });
+        }
+        
+        function testMinIO() {
+            fetch('/api/v1/debug/minio')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('minio-result').innerHTML = 
+                        '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                })
+                .catch(error => {
+                    document.getElementById('minio-result').innerHTML = 
+                        '<pre>Error: ' + error + '</pre>';
+                });
+        }
+        
+        function testImageUrls() {
+            fetch('/api/v1/debug/image-urls')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('image-urls-result').innerHTML = 
+                        '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                })
+                .catch(error => {
+                    document.getElementById('image-urls-result').innerHTML = 
+                        '<pre>Error: ' + error + '</pre>';
+                });
+        }
+        
+        function testDirectMinIO() {
+            // Test a common MinIO URL pattern
+            const testUrl = 'http://localhost:9000/dreamshop-images/test.jpg';
+            const img = document.getElementById('test-image');
+            img.src = testUrl;
+            img.style.display = 'block';
+            document.getElementById('direct-minio-result').innerHTML = 'Testing image load...';
+        }
+    </script>
+</body>
+</html>

@@ -3,7 +3,14 @@ package com.mlv.dreamshop.Controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,13 +21,6 @@ import com.mlv.dreamshop.exceptions.CategoryNotFoundException;
 import com.mlv.dreamshop.service.category.CategoryService;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RequiredArgsConstructor
@@ -46,7 +46,7 @@ public class CategoryController {
     }
 
     // add category
-    @PostMapping("/add")
+    @PostMapping(value = "/add")
     public ResponseEntity<ApiResponse> addCategory(@RequestBody Category category) {
         try {
             Category category1 = categoryService.addCategory(category);
@@ -98,7 +98,7 @@ public class CategoryController {
     }
 
     //update category by the id
-    @PutMapping("/category/update/{categoryId}")
+    @PutMapping(value = "/category/update/{categoryId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse> updateCategoryById(@PathVariable Long categoryId, @RequestBody Category category) {
         try {
             Category updatedCategory = categoryService.updateCategory(category, categoryId);
