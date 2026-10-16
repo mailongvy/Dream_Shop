@@ -85,13 +85,13 @@ public class OrderService implements IOrderService {
 
         // after finding the cart make the order belong to cart
         Order order = createOrder(cart);
-        List<OrderItem> orderItemList = createOrderItems(order, cart);
+        List<OrderItem> orderItemList = createOrderItems(order, cart);  
 
         order.setOrderItems(new HashSet<>(orderItemList));
         order.setTotalAmount(calculateTotalAmount(orderItemList));
 
         Order savedOrder = orderRepository.save(order);
-
+        
         cartService.clearCart(cart.getId());
 
         // gửi email đã đặt hàng thành công
@@ -99,7 +99,7 @@ public class OrderService implements IOrderService {
 
         // thay vì gửi mail trực tiếp cho orderservice gửi event qua kafka từ kafka gửi mail 
         try {
-            // trước kho gửi kafka thì manual setup cho simpleorderdto
+            // trước khi gửi kafka thì manual setup cho simpleorderdto
             SimpleOrderDTO orderInfo = new SimpleOrderDTO(
                 savedOrder.getId(),
                 cart.getUser().getId(),
@@ -116,9 +116,9 @@ public class OrderService implements IOrderService {
             log.info("Sent order confirmation event to Kafka for order: {}", savedOrder.getId());
 
             
-            // Gửi lần 2 (mô phỏng retry)
-            kafkaTemplate.send(ORDER_CONFIRMATION_TOPIC, "1", event);
-            log.info("Sent message 2 (duplicate) for order: {}", savedOrder.getId());
+            // // Gửi lần 2 (mô phỏng retry)
+            // kafkaTemplate.send(ORDER_CONFIRMATION_TOPIC, "1", event);
+            // log.info("Sent message 2 (duplicate) for order: {}", savedOrder.getId());
         } catch (Exception e) {
             // TODO Auto-generated catch block
             log.error("Failed to send order confirmation event to Kafka for order: {}", savedOrder.getId(), e);

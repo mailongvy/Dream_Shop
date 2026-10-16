@@ -2,7 +2,6 @@ package com.mlv.dreamshop.service.user;
 
 import java.util.Optional;
 
-import com.mlv.dreamshop.dto.UserDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.mlv.dreamshop.DAO.UserRepository;
 import com.mlv.dreamshop.Model.User;
+import com.mlv.dreamshop.dto.UserDTO;
 import com.mlv.dreamshop.exceptions.AlreadyExistsException;
 import com.mlv.dreamshop.exceptions.ResourceNotFound;
 import com.mlv.dreamshop.request.CreateUserRequest;

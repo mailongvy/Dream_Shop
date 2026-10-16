@@ -10,7 +10,7 @@ import lombok.Data;
 @Component
 public class MinioProperties {
     private String accessKey;    // Bỏ @Value
-    private String secretKey;    // Bỏ @Value  
+    private String secretKey;    // Bỏ @Value  k
     private String endpoint;     // Bỏ @Value
     // private String bucketName;   // Thêm bucketName
 }

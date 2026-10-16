@@ -7,7 +7,7 @@ import com.mlv.dreamshop.Model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-   boolean existsByEmail(String email);
+    boolean existsByEmail(String email);
 
     User findByEmail(String email);
 }
